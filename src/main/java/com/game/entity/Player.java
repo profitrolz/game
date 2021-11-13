@@ -1,15 +1,24 @@
-package com.game.player;
+package com.game.entity;
 
 import com.game.entity.Profession;
 import com.game.entity.Race;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.*;
 import java.util.Date;
 
+@Entity
+@Component
+@Table(name = "player")
 public class Player {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
     private String title;
+    @Enumerated(EnumType.STRING)
     private Race race;
+    @Enumerated(EnumType.STRING)
     private Profession profession;
     private Integer experience;
     private Integer level;
