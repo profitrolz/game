@@ -27,6 +27,7 @@ public class CreatePlayerTest extends AbstractTest {
     //test2
     @Test
     public void createPlayerEmptyNameTest() throws Exception {
+        System.out.println(TestsHelper.EMPTY_NAME_JSON);
         mockMvc.perform(post("/rest/players/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestsHelper.EMPTY_NAME_JSON))

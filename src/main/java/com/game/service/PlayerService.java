@@ -1,9 +1,12 @@
 package com.game.service;
 
 import com.game.entity.Player;
+import com.game.entity.PlayerImpl;
+import com.game.exceptions.NotFoundException;
 import com.game.repository.PlayerRepo;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,16 +22,27 @@ public class PlayerService {
     }
     //
 
-    public List<Player> getPlayers(Optional<Integer> pageNumber, Optional<Integer> pageSize) {
+    public List<Player> getPlayers(Specification<Player> playerSpecification, Optional<Integer> pageNumber, Optional<Integer> pageSize) {
         Pageable pageable = PageRequest.of(pageNumber.orElse(0), pageSize.orElse(3));
-        return playerRepo.findAll(pageable).toList();
+        return playerRepo.findAll(playerSpecification,pageable).toList();
     }
 
-    public Long getPlayersCount() {
-        return playerRepo.count();
+    public Integer getPlayersCount(Specification<Player> specification) {
+        return playerRepo.findAll(specification).size();
     }
 
-    public Player getPlayerById(Long id) {
+    public PlayerImpl getPlayerById(Long id) {
         return playerRepo.findById(id).orElseThrow(() -> new IllegalStateException());
+    }
+
+    public void addNewPlayer(PlayerImpl player) {
+        player.validate();
+        player.calculateLevelAndUntilNextLevel();
+        playerRepo.save(player);
+    }
+
+    public void deletePlayer(Long id) {
+        playerRepo.findById(id).orElseThrow(() -> new NotFoundException("Player with id " + id + " not found"));
+        playerRepo.deleteById(id);
     }
 }

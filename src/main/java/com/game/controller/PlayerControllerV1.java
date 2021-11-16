@@ -1,7 +1,9 @@
 package com.game.controller;
 
-import com.game.entity.Player;
+import com.game.entity.*;
+import com.game.player.PlayerSearchCriteria;
 import com.game.service.PlayerService;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,18 +20,45 @@ public class PlayerControllerV1 {
     }
 
     @GetMapping()
-    public List<Player> getPlayers(@RequestParam Optional<Integer> pageNumber, @RequestParam Optional<Integer> pageSize) {
-        return playerService.getPlayers(pageNumber, pageSize);
+    public List<Player> getPlayers(@RequestParam(required = false) String name,
+                                       @RequestParam(required = false) String title,
+                                       @RequestParam(required = false) Race race,
+                                       @RequestParam(required = false) Profession profession,
+                                       @RequestParam(required = false) Optional<Integer> pageNumber,
+                                       @RequestParam(required = false) Optional<Integer> pageSize) {
+        Specification<Player> spec = Specification.where(PlayerSpecification.withname(name))
+                .and(PlayerSpecification.withTitle(title))
+                .and(PlayerSpecification.withRace(race))
+                .and(PlayerSpecification.withProfession(profession));
+        return playerService.getPlayers(spec, pageNumber, pageSize);
     }
 
     @GetMapping(path = "count")
-    public Long getPlayersCount() {
-        return playerService.getPlayersCount();
+    public Integer getPlayersCount(@RequestParam(required = false) String name,
+                                @RequestParam(required = false) String title,
+                                @RequestParam(required = false) Race race,
+                                @RequestParam(required = false) Profession profession) {
+        Specification<Player> spec = Specification.where(PlayerSpecification.withname(name))
+                .and(PlayerSpecification.withTitle(title))
+                .and(PlayerSpecification.withRace(race))
+                .and(PlayerSpecification.withProfession(profession));
+        return playerService.getPlayersCount(spec);
     }
 
     @GetMapping(path = "{id}")
-    public Player getPlayerById(@PathVariable Long id) {
+    public PlayerImpl getPlayerById(@PathVariable Long id) {
         return playerService.getPlayerById(id);
+    }
+
+    @PostMapping
+    PlayerImpl addNewPlayer(@RequestBody PlayerImpl player){
+        playerService.addNewPlayer(player);
+        return player;
+    }
+
+    @DeleteMapping(path = "{id}")
+    public void deletePlayer(@PathVariable Long id) {
+        playerService.deletePlayer(id);
     }
 
 

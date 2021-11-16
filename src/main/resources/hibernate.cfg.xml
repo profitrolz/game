@@ -18,6 +18,6 @@
         <property name="hbm2ddl.auto">validate</property>
 
         <!-- Names the annotated entity class -->
-        <mapping class="com.game.entity.Player"/>
+        <mapping class="com.game.entity.PlayerImpl"/>
     </session-factory>
 </hibernate-configuration>
