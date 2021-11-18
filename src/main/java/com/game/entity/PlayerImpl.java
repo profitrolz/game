@@ -1,11 +1,18 @@
 package com.game.entity;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.game.entity.Profession;
 import com.game.entity.Race;
 import com.game.exceptions.BadRequestException;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -26,6 +33,30 @@ public class PlayerImpl implements Player{
     private Integer untilNextLevel;
     private Date birthday;
     private Boolean banned;
+    private static final Date MAX_BDAY;
+    private static final Date MIN_BDAY;
+
+    static {
+        Date MIN_BDAY1;
+        Date MAX_BDAY1;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        try {
+            MAX_BDAY1 = simpleDateFormat.parse("3000-12-31");
+        } catch (ParseException e) {
+            MAX_BDAY1 = new Date(Long.MAX_VALUE);
+        }
+
+        MAX_BDAY = MAX_BDAY1;
+
+        try {
+            MIN_BDAY1 = simpleDateFormat.parse("2000-01-01");
+        } catch (ParseException e) {
+            MIN_BDAY1 = new Date(0);
+        }
+
+        MIN_BDAY = MIN_BDAY1;
+    }
 
     public PlayerImpl() {
     }
@@ -41,6 +72,7 @@ public class PlayerImpl implements Player{
         this.untilNextLevel = untilNextLevel;
         this.birthday = birthday;
         this.banned = banned;
+
     }
 
     @Override
@@ -51,7 +83,17 @@ public class PlayerImpl implements Player{
         if(name.equals(""))
             throw new BadRequestException("Not validated player");
 
+        if(name.length() > 12)
+            throw new BadRequestException("Name length must be <= 12");
 
+        if(title.length() > 30)
+            throw new BadRequestException("Title length must be <= 30");
+
+        if(experience < 0 || experience > 10000000)
+            throw new BadRequestException("Bad experience");
+
+        if(birthday.getTime() < MIN_BDAY.getTime() || birthday.getTime() >  MAX_BDAY.getTime())
+            throw new BadRequestException("Bad birthday");
     }
 
     public void calculateLevelAndUntilNextLevel(){
@@ -145,5 +187,21 @@ public class PlayerImpl implements Player{
 
     public void setBanned(Boolean banned) {
         this.banned = banned;
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerImpl{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", title='" + title + '\'' +
+                ", race=" + race +
+                ", profession=" + profession +
+                ", experience=" + experience +
+                ", level=" + level +
+                ", untilNextLevel=" + untilNextLevel +
+                ", birthday=" + birthday +
+                ", banned=" + banned +
+                '}';
     }
 }
